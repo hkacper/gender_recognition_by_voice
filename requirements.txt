@@ -36,7 +36,7 @@ oauth==1.0.1
 olefile==0.45.1
 packaging==19.2
 pexpect==4.2.1
-Pillow==5.1.0
+Pillow==6.2.0
 pipwin==0.4.6
 protobuf==3.0.0
 PyAudio==0.2.11
