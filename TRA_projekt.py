@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 from scipy.io import wavfile
+from scipy.fftpack import fft
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn import svm, metrics
 from sklearn.svm import SVC
@@ -13,7 +14,7 @@ import wave
 
 
 def import_data():
-    data = pd.read_csv('/home/kacper/Pobrane/TRA_projekt/voice.csv')
+    data = pd.read_csv('/home/kacper/Pobrane/TRA_projekt/TRA/voice.csv')
     data = data[['meanfun', 'maxfun', 'minfun', 'label']]
     data['label'] = data['label'].map({'female': 0, 'male':1}).astype(int)
     return data
@@ -86,7 +87,7 @@ def record_audio():
     channels = 2
     fs = 44100
     seconds = 2
-    filename = '/home/kacper/Pobrane/TRA_projekt/output.wav'
+    filename = '/home/kacper/Pobrane/TRA_projekt/TRA/output.wav'
 
     p = pyaudio.PyAudio()
     print('recording')
@@ -111,17 +112,27 @@ def record_audio():
 
 def plot_sound(filename):
     samplingFreq, signalData = wavfile.read(filename)
-    #plt.subplot(211)
-    #plt.title('Spectrogram of a wav file')
-    #plt.plot(signalData)
-    #plt.xlabel('Sample')
-    #plt.ylabel('Amplitude')
+    plt.subplot(311)
+    plt.plot(signalData)
+    plt.xlabel('Sample')
+    plt.ylabel('Amplitude')
 
     signalData = signalData[:,0]
-    plt.subplot(212)
+    plt.subplot(312)
     plt.specgram(signalData, Fs=samplingFreq)
+    plt.title('Spectrogram')
     plt.xlabel('Time')
     plt.ylabel('Frequency')
+
+    fft_out = fft(signalData)
+    plt.subplot(313)
+    plt.title('FFT')
+    X = fft(signalData)
+    X_mag = np.absolute(X)
+    f = np.linspace(0, samplingFreq, len(X_mag))
+    plt.plot(f, X_mag)    
+    plt.xlabel('Frequency')
+    plt.ylabel('')
 
     plt.show()
 
@@ -129,16 +140,15 @@ def plot_sound(filename):
 if __name__ == '__main__':
 
     record_audio()
-    os.system('"/usr/bin/praat" --run "/home/kacper/Pobrane/TRA_projekt/get_audio_info.praat"')
+    os.system('"/usr/bin/praat" --run "/home/kacper/Pobrane/TRA_projekt/TRA/get_audio_info.praat"')
 
-    file = open('/home/kacper/Pobrane/TRA_projekt/output.txt', 'r')
+    file = open('/home/kacper/Pobrane/TRA_projekt/TRA/output.txt', 'r')
     values = []
     values = file.readline()
     values = values.split(', ')
     for x in range(0,3):
         values[x] = float(values[x])/1000
     values = [values]
-    print(values)
     
     data = import_data()
 
@@ -166,4 +176,4 @@ if __name__ == '__main__':
     else:
         print('male' + '\n')
 
-    plot_sound('/home/kacper/Pobrane/TRA_projekt/output.wav')
+    plot_sound('/home/kacper/Pobrane/TRA_projekt/TRA/output.wav')
